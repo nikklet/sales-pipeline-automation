@@ -15,6 +15,21 @@ Leads came in through Tally forms, Google Forms, and email. Each source used dif
 5. **Store:** New contacts go to HubSpot and a Google Sheets log. Existing ones are updated.
 6. **Notify:** A Slack message gives the sales team the lead's details, source, and a short summary of the request.
 
+## Architecture
+
+```mermaid
+flowchart LR
+A["Webhook or API"] --> B["Loop Over Items: batch"]
+B --> C["LLM classifies: department, category, urgency"]
+C --> D{"Switch by department"}
+D --> E["Sales"]
+D --> F["Customer Support"]
+D --> G["Billing and Finance"]
+D --> H["HR"]
+D --> I["Operations"]
+C -.->|"low confidence"| J["Human review queue"]
+```
+
 ## Problems Solved
 - **Workflow breakdowns from overloaded nodes.** The first version crammed too much logic into a few complex nodes, and they kept failing. I diagnosed where the breakdowns were happening and split those stages into separate sub-workflows. Each one now handles a single job, so failures are easier to trace and fix, and one stage failing no longer takes down the whole pipeline.
 - **Three formats, one pipeline.** A normalization step means everything downstream only handles one structure.
